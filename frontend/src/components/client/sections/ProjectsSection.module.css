@@ -1,0 +1,126 @@
+.projectsSection {
+    padding: 80px 0;
+    background-color: white;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.sectionHeader {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.sectionTitle {
+    color: #0f172a;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+}
+
+.sectionDivider {
+    width: 80px;
+    height: 4px;
+    background-color: #d97706;
+    margin: 0 auto 1.5rem;
+    border-radius: 2px;
+}
+
+.sectionDescription {
+    color: #64748b;
+    max-width: 768px;
+    margin: 0 auto;
+    font-size: 1.125rem;
+    line-height: 1.75;
+}
+
+.projectsGrid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .projectsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .projectsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.projectCard {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.projectCard:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.projectImageWrapper {
+    position: relative;
+    height: 256px;
+    overflow: hidden;
+}
+
+.projectImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.projectCard:hover .projectImage {
+    transform: scale(1.1);
+}
+
+.projectStatus {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.875rem;
+}
+
+.statusCompleted {
+    background-color: #10b981;
+}
+
+.statusInProgress {
+    background-color: #f59e0b;
+}
+
+.statusPlanning {
+    background-color: #3b82f6;
+}
+
+.projectContent {
+    padding: 24px;
+}
+
+.projectContent h3 {
+    color: #0f172a;
+    margin-bottom: 8px;
+    font-size: 1.25rem;
+}
+
+.projectLocation {
+    color: #64748b;
+    margin-bottom: 16px;
+}
+
+.projectDescription {
+    color: #94a3b8;
+    line-height: 1.6;
+}
