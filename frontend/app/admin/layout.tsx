@@ -1,7 +1,7 @@
-import AdminSidebar from '@/src/components/admin/layout/AdminSidebar';
-import AdminHeader from '@/src/components/admin/layout/AdminHeader';
+import AdminSidebar from '@/components/admin/layout/AdminSidebar';
+import AdminHeader from '@/components/admin/layout/AdminHeader';
 import styles from './layout.module.css';
-import { generateMetadata } from '@/src/components/shared/utils/SEO';
+import { generateMetadata } from '@/components/shared/utils/SEO';
 
 export const metadata = generateMetadata({
   title: 'Admin Dashboard - ABM GRAND CONSTRUCTION',

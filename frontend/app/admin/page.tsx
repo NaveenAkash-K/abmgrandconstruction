@@ -1,9 +1,9 @@
 "use client";
 
 import { Eye, FileText, Users, Briefcase } from 'lucide-react';
-import StatCard from '@/src/components/admin/dashboard/StatCard'
-import RecentActivity from '@/src/components/admin/dashboard/RecentActivity';
-import QuickActions from '@/src/components/admin/dashboard/QuickActions';
+import StatCard from '@/components/admin/dashboard/StatCard'
+import RecentActivity from '@/components/admin/dashboard/RecentActivity';
+import QuickActions from '@/components/admin/dashboard/QuickActions';
 import styles from './page.module.css';
 
 export default function AdminDashboard() {
