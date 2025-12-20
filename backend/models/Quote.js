@@ -1,0 +1,38 @@
+const mongoose = require('mongoose');
+
+const quoteSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please provide a name'],
+      trim: true,
+      maxlength: [100, 'Name cannot be more than 100 characters'],
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide an email'],
+      trim: true,
+      lowercase: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        'Please provide a valid email',
+      ],
+    },
+    phone: {
+      type: String,
+      required: [true, 'Please provide a phone number'],
+      trim: true,
+      maxlength: [20, 'Phone number cannot be more than 20 characters'],
+    },
+    message: {
+      type: String,
+      required: [true, 'Please provide a message'],
+      maxlength: [2000, 'Message cannot be more than 2000 characters'],
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+module.exports = mongoose.model('Quote', quoteSchema);
