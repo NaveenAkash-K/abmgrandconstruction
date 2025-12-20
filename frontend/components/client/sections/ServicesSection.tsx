@@ -1,40 +1,66 @@
-import { Home, Building2, Hammer, Wrench, CheckCircle2, Target } from 'lucide-react';
-import styles from './ServicesSection.module.css';
+'use client';
 
-const services = [
-    {
-        icon: Home,
-        title: 'Residential Construction',
-        description: 'Custom homes, renovations, and residential developments built to the highest standards of quality and comfort.'
-    },
-    {
-        icon: Building2,
-        title: 'Commercial Construction',
-        description: 'Office buildings, retail spaces, and commercial complexes designed for functionality and aesthetic appeal.'
-    },
-    {
-        icon: Hammer,
-        title: 'Interior Renovation',
-        description: 'Transform existing spaces with modern designs, quality materials, and expert craftsmanship.'
-    },
-    {
-        icon: Wrench,
-        title: 'Structural Repairs',
-        description: 'Expert structural assessment and repair services to ensure safety and longevity of your buildings.'
-    },
-    {
-        icon: CheckCircle2,
-        title: 'Turnkey Projects',
-        description: 'Complete end-to-end solutions from planning and design to construction and handover.'
-    },
-    {
-        icon: Target,
-        title: 'Project Management',
-        description: 'Professional oversight ensuring projects are delivered on time, within budget, and to specification.'
-    }
-];
+import { useEffect, useState } from 'react';
+import { Home, Building2, Hammer, Wrench, CheckCircle2, Target, Award, Clock, Shield, Users } from 'lucide-react';
+import styles from './ServicesSection.module.css';
+import { serviceService, Service } from '@/services';
+
+// Icon mapping
+const iconMap: { [key: string]: any } = {
+    home: Home,
+    building: Building2,
+    hammer: Hammer,
+    wrench: Wrench,
+    check: CheckCircle2,
+    target: Target,
+    award: Award,
+    clock: Clock,
+    shield: Shield,
+    users: Users,
+};
 
 export default function ServicesSection() {
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchServices();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            setLoading(true);
+            const response = await serviceService.getAll();
+            // Filter only active services and sort by order
+            const activeServices = (response.data || [])
+                .filter((service: Service) => service.isActive)
+                .sort((a: Service, b: Service) => (a.order || 0) - (b.order || 0));
+            setServices(activeServices);
+        } catch (error) {
+            console.error('Failed to fetch services:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <section id="services" className={styles.servicesSection}>
+                <div className={styles.container}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>Our Services</h2>
+                        <div className={styles.sectionDivider}></div>
+                        <p className={styles.sectionDescription}>Loading...</p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (services.length === 0) {
+        return null; // Don't show section if no services
+    }
+
     return (
         <section id="services" className={styles.servicesSection}>
             <div className={styles.container}>
@@ -46,10 +72,10 @@ export default function ServicesSection() {
                     </p>
                 </div>
                 <div className={styles.servicesGrid}>
-                    {services.map((service, index) => {
-                        const Icon = service.icon;
+                    {services.map((service) => {
+                        const Icon = iconMap[service.icon] || Home;
                         return (
-                            <div key={index} className={styles.serviceCard}>
+                            <div key={service._id} className={styles.serviceCard}>
                                 <div className={styles.serviceIconWrapper}>
                                     <Icon className={styles.serviceIcon} />
                                 </div>

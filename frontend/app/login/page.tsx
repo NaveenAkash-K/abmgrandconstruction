@@ -1,28 +1,55 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, User } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import styles from './page.module.css';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isAuthenticated, loading: authLoading } = useAuth();
   const [credentials, setCredentials] = useState({
-    username: '',
+    email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simple authentication (replace with actual auth)
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      // Set authentication cookie/token
-      document.cookie = 'admin-token=authenticated; path=/';
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
       router.push('/admin');
-    } else {
-      alert('Invalid credentials');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await login(credentials.email, credentials.password);
+      router.push('/admin');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.form}>
+          <div className={styles.logo}>
+            <h1>Loading...</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -32,15 +59,22 @@ export default function LoginPage() {
           <p>Sign in to your account</p>
         </div>
 
+        {error && (
+          <div className={styles.errorMessage}>
+            <p>{error}</p>
+          </div>
+        )}
+
         <div className={styles.formGroup}>
           <div className={styles.inputWrapper}>
-            <User size={20} />
+            <Mail size={20} />
             <input
-              type="text"
-              placeholder="Username"
-              value={credentials.username}
-              onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+              type="email"
+              placeholder="Email Address"
+              value={credentials.email}
+              onChange={(e) => setCredentials({...credentials, email: e.target.value})}
               required
+              disabled={loading}
             />
           </div>
         </div>
@@ -54,12 +88,17 @@ export default function LoginPage() {
               value={credentials.password}
               onChange={(e) => setCredentials({...credentials, password: e.target.value})}
               required
+              disabled={loading}
             />
           </div>
         </div>
 
-        <button type="submit" className={styles.submitButton}>
-          Sign In
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={loading}
+        >
+          {loading ? 'Signing In...' : 'Sign In'}
         </button>
       </form>
     </div>

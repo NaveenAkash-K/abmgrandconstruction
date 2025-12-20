@@ -1,7 +1,25 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Building2, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import styles from './Footer.module.css';
+import { contactService, ContactInfo } from '@/services';
 
 export default function Footer() {
+    const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+
+    const fetchContactInfo = async () => {
+        try {
+            const response = await contactService.getInfo();
+            setContactInfo(response.data);
+        } catch (error) {
+            console.error('Failed to fetch contact info:', error);
+        }
+    };
+    useEffect(() => {
+        fetchContactInfo();
+    }, []);
+
     return (
         <footer className={styles.footer}>
             <div className={styles.footerContainer}>
@@ -51,10 +69,10 @@ export default function Footer() {
                     <div className={styles.footerContact}>
                         <h4>Contact Info</h4>
                         <ul>
-                            <li>123 Construction Boulevard</li>
-                            <li>Business District, NY 10001</li>
-                            <li>+1 (555) 123-4567</li>
-                            <li>info@abmgrand.com</li>
+                            <li>{contactInfo?.streetAddress || '123 Construction Boulevard'}</li>
+                            <li>{contactInfo?.cityAndZip || 'Business District, NY 10001'}</li>
+                            <li>{contactInfo?.primaryPhone || '+1 (555) 123-4567'}</li>
+                            <li>{contactInfo?.primaryEmail || 'info@abmgrand.com'}</li>
                         </ul>
                     </div>
                 </div>

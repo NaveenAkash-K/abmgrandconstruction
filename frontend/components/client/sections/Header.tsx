@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Menu, X } from 'lucide-react';
 import styles from './Header.module.css';
+import logo from "./../../../assets/logo.png"
+import Image from "next/image";
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -42,7 +44,8 @@ export default function Header() {
         <header className={`${styles.header} ${isScrolled ? styles.headerScrolled : ''}`}>
             <div className={styles.headerContainer}>
                 <div className={styles.logo}>
-                    <Building2 className={styles.logoIcon} />
+                    {/*<Building2 className={styles.logoIcon} />*/}
+                    <Image src={logo} alt={""} className={styles.logoIcon}/>
                     <span>ABM GRAND CONSTRUCTION</span>
                 </div>
 

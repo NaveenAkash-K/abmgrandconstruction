@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -16,12 +16,14 @@ import {
   X
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
+import logo from "@/assets/logo.png";
+import Image from "next/image";
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
   { icon: Briefcase, label: 'Projects', href: '/admin/projects' },
   { icon: Wrench, label: 'Services', href: '/admin/services' },
-  { icon: Users, label: 'Clients', href: '/admin/clients' },
+  // { icon: Users, label: 'Clients', href: '/admin/clients' },
   { icon: Award, label: 'Why Choose Us', href: '/admin/why-choose-us' },
   { icon: Info, label: 'About', href: '/admin/about' },
   { icon: Phone, label: 'Contact', href: '/admin/contact' },
@@ -42,6 +44,7 @@ export default function AdminSidebar() {
 
       <aside className={`${styles.sidebar} ${isMobileOpen ? styles.mobileOpen : ''}`}>
         <div className={styles.logo}>
+            <Image src={logo} alt={""} className={styles.logoIcon}/>
           <h2>ABM Admin</h2>
         </div>
 

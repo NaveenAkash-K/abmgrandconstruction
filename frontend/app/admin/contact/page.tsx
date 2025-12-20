@@ -1,34 +1,96 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, MapPin, Phone, Mail, Clock } from 'lucide-react';
 import styles from './page.module.css';
+import { contactService, ContactInfo } from '@/services';
 
 export default function ContactAdmin() {
-  const [formData, setFormData] = useState({
-    address: '123 Construction Boulevard',
-    city: 'Business District, NY 10001',
-    country: 'United States',
-    phone1: '+1 (555) 123-4567',
-    phone2: '+1 (555) 987-6543',
-    email1: 'info@abmgrand.com',
-    email2: 'projects@abmgrand.com',
-    businessHours: {
-      weekdays: 'Monday - Friday: 8:00 AM - 6:00 PM',
-      saturday: 'Saturday: 9:00 AM - 2:00 PM',
-      sunday: 'Sunday: Closed'
-    }
+  const [formData, setFormData] = useState<Partial<ContactInfo>>({
+    streetAddress: '',
+    cityAndZip: '',
+    country: '',
+    primaryPhone: '',
+    secondaryPhone: '',
+    primaryEmail: '',
+    secondaryEmail: '',
+    businessHoursWeekdays: '',
+    businessHoursSaturday: '',
+    businessHoursSunday: ''
   });
 
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Save to backend
-    console.log('Saving contact info:', formData);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  useEffect(() => {
+    fetchContactInfo();
+  }, []);
+
+  const fetchContactInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await contactService.getInfo();
+
+      if (response.data) {
+        setFormData({
+          streetAddress: response.data.streetAddress || '',
+          cityAndZip: response.data.cityAndZip || '',
+          country: response.data.country || '',
+          primaryPhone: response.data.primaryPhone || '',
+          secondaryPhone: response.data.secondaryPhone || '',
+          primaryEmail: response.data.primaryEmail || '',
+          secondaryEmail: response.data.secondaryEmail || '',
+          businessHoursWeekdays: response.data.businessHoursWeekdays || '',
+          businessHoursSaturday: response.data.businessHoursSaturday || '',
+          businessHoursSunday: response.data.businessHoursSunday || ''
+        });
+      }
+      setError('');
+    } catch (err: any) {
+      console.error('Failed to fetch contact info:', err);
+      setError('Failed to load contact information');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    setSaved(false);
+
+    try {
+      await contactService.updateInfo(formData);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err: any) {
+      console.error('Failed to save contact info:', err);
+      setError(err.response?.data?.message || 'Failed to save contact information');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1>Contact Information</h1>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -39,6 +101,12 @@ export default function ContactAdmin() {
         </div>
       </div>
 
+      {error && (
+        <div className={styles.errorMessage}>
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -47,31 +115,37 @@ export default function ContactAdmin() {
           </div>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
-              <label>Street Address *</label>
+              <label htmlFor="streetAddress">Street Address *</label>
               <input
                 type="text"
-                value={formData.address}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                id="streetAddress"
+                name="streetAddress"
+                value={formData.streetAddress}
+                onChange={handleChange}
                 required
                 placeholder="Enter street address"
               />
             </div>
             <div className={styles.formGroup}>
-              <label>City & ZIP *</label>
+              <label htmlFor="cityAndZip">City & ZIP *</label>
               <input
                 type="text"
-                value={formData.city}
-                onChange={(e) => setFormData({...formData, city: e.target.value})}
+                id="cityAndZip"
+                name="cityAndZip"
+                value={formData.cityAndZip}
+                onChange={handleChange}
                 required
                 placeholder="Enter city and ZIP code"
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Country *</label>
+              <label htmlFor="country">Country *</label>
               <input
                 type="text"
+                id="country"
+                name="country"
                 value={formData.country}
-                onChange={(e) => setFormData({...formData, country: e.target.value})}
+                onChange={handleChange}
                 required
                 placeholder="Enter country"
               />
@@ -86,21 +160,25 @@ export default function ContactAdmin() {
           </div>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
-              <label>Primary Phone *</label>
+              <label htmlFor="primaryPhone">Primary Phone *</label>
               <input
                 type="tel"
-                value={formData.phone1}
-                onChange={(e) => setFormData({...formData, phone1: e.target.value})}
+                id="primaryPhone"
+                name="primaryPhone"
+                value={formData.primaryPhone}
+                onChange={handleChange}
                 required
                 placeholder="Enter primary phone"
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Secondary Phone</label>
+              <label htmlFor="secondaryPhone">Secondary Phone</label>
               <input
                 type="tel"
-                value={formData.phone2}
-                onChange={(e) => setFormData({...formData, phone2: e.target.value})}
+                id="secondaryPhone"
+                name="secondaryPhone"
+                value={formData.secondaryPhone}
+                onChange={handleChange}
                 placeholder="Enter secondary phone (optional)"
               />
             </div>
@@ -114,21 +192,25 @@ export default function ContactAdmin() {
           </div>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
-              <label>Primary Email *</label>
+              <label htmlFor="primaryEmail">Primary Email *</label>
               <input
                 type="email"
-                value={formData.email1}
-                onChange={(e) => setFormData({...formData, email1: e.target.value})}
+                id="primaryEmail"
+                name="primaryEmail"
+                value={formData.primaryEmail}
+                onChange={handleChange}
                 required
                 placeholder="Enter primary email"
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Secondary Email</label>
+              <label htmlFor="secondaryEmail">Secondary Email</label>
               <input
                 type="email"
-                value={formData.email2}
-                onChange={(e) => setFormData({...formData, email2: e.target.value})}
+                id="secondaryEmail"
+                name="secondaryEmail"
+                value={formData.secondaryEmail}
+                onChange={handleChange}
                 placeholder="Enter secondary email (optional)"
               />
             </div>
@@ -142,40 +224,37 @@ export default function ContactAdmin() {
           </div>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
-              <label>Weekdays *</label>
+              <label htmlFor="businessHoursWeekdays">Weekdays *</label>
               <input
                 type="text"
-                value={formData.businessHours.weekdays}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  businessHours: {...formData.businessHours, weekdays: e.target.value}
-                })}
+                id="businessHoursWeekdays"
+                name="businessHoursWeekdays"
+                value={formData.businessHoursWeekdays}
+                onChange={handleChange}
                 required
                 placeholder="e.g., Monday - Friday: 9:00 AM - 6:00 PM"
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Saturday *</label>
+              <label htmlFor="businessHoursSaturday">Saturday *</label>
               <input
                 type="text"
-                value={formData.businessHours.saturday}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  businessHours: {...formData.businessHours, saturday: e.target.value}
-                })}
+                id="businessHoursSaturday"
+                name="businessHoursSaturday"
+                value={formData.businessHoursSaturday}
+                onChange={handleChange}
                 required
                 placeholder="e.g., Saturday: 9:00 AM - 2:00 PM"
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Sunday *</label>
+              <label htmlFor="businessHoursSunday">Sunday *</label>
               <input
                 type="text"
-                value={formData.businessHours.sunday}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  businessHours: {...formData.businessHours, sunday: e.target.value}
-                })}
+                id="businessHoursSunday"
+                name="businessHoursSunday"
+                value={formData.businessHoursSunday}
+                onChange={handleChange}
                 required
                 placeholder="e.g., Sunday: Closed"
               />
@@ -185,9 +264,13 @@ export default function ContactAdmin() {
 
         <div className={styles.formActions}>
           {saved && <span className={styles.successMessage}>Changes saved successfully!</span>}
-          <button type="submit" className={styles.saveButton}>
+          <button
+            type="submit"
+            className={styles.saveButton}
+            disabled={saving}
+          >
             <Save size={20} />
-            Save Changes
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>

@@ -1,105 +1,95 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import styles from './page.module.css';
-
-interface Reason {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    order: number;
-}
+import { whyChooseUsService, WhyChooseUs } from '@/services';
 
 export default function WhyChooseUsAdmin() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showForm, setShowForm] = useState(false);
-    const [editingReason, setEditingReason] = useState<Reason | null>(null);
-    const [reasons, setReasons] = useState<Reason[]>([
-        {
-            id: '1',
-            title: 'Quality Work',
-            description: 'We never compromise on quality. Every project is executed with precision and attention to detail.',
-            icon: 'award',
-            order: 1
-        },
-        {
-            id: '2',
-            title: 'On-Time Delivery',
-            description: 'We understand the value of time. Our projects are delivered within agreed timelines, every time.',
-            icon: 'clock',
-            order: 2
-        },
-        {
-            id: '3',
-            title: 'Transparency',
-            description: 'Clear communication and transparent processes ensure you\'re always informed about your project.',
-            icon: 'check',
-            order: 3
-        },
-        {
-            id: '4',
-            title: 'Reliable Workforce',
-            description: 'Our skilled and experienced team brings professionalism and expertise to every project.',
-            icon: 'users',
-            order: 4
-        },
-        {
-            id: '5',
-            title: 'Safety Standards',
-            description: 'We maintain the highest safety standards to protect our workers and ensure secure worksites.',
-            icon: 'shield',
-            order: 5
-        },
-        {
-            id: '6',
-            title: 'Client-Focused',
-            description: 'Your vision is our mission. We work closely with you to bring your dream project to life.',
-            icon: 'target',
-            order: 6
-        }
-    ]);
+    const [editingReason, setEditingReason] = useState<WhyChooseUs | null>(null);
+    const [reasons, setReasons] = useState<WhyChooseUs[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<Partial<WhyChooseUs>>({
         title: '',
         description: '',
         icon: 'award',
-        order: reasons.length + 1
+        order: 0,
+        isActive: true
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (editingReason) {
-            setReasons(reasons.map(r =>
-                r.id === editingReason.id
-                    ? { ...r, ...formData }
-                    : r
-            ));
-        } else {
-            const newReason: Reason = {
-                id: Date.now().toString(),
-                ...formData
-            };
-            setReasons([...reasons, newReason]);
+    useEffect(() => {
+        fetchReasons();
+    }, []);
+
+    const fetchReasons = async () => {
+        try {
+            setLoading(true);
+            const response = await whyChooseUsService.getAll();
+            setReasons(response.data || []);
+            setError('');
+        } catch (err: any) {
+            console.error('Failed to fetch reasons:', err);
+            setError('Failed to load reasons');
+        } finally {
+            setLoading(false);
         }
-        handleCloseForm();
     };
 
-    const handleEdit = (reason: Reason) => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+        setError('');
+
+        try {
+            if (editingReason && editingReason._id) {
+                // Update existing reason
+                const response = await whyChooseUsService.update(editingReason._id, formData);
+                setReasons(reasons.map(r =>
+                    r._id === editingReason._id ? response.data : r
+                ));
+            } else {
+                // Create new reason
+                const response = await whyChooseUsService.create(formData as WhyChooseUs);
+                setReasons([...reasons, response.data]);
+            }
+
+            handleCloseForm();
+        } catch (err: any) {
+            console.error('Failed to save reason:', err);
+            setError(err.response?.data?.message || 'Failed to save reason');
+        } finally {
+            setSubmitLoading(false);
+        }
+    };
+
+    const handleEdit = (reason: WhyChooseUs) => {
         setEditingReason(reason);
         setFormData({
             title: reason.title,
             description: reason.description,
             icon: reason.icon,
-            order: reason.order
+            order: reason.order || 0,
+            isActive: reason.isActive ?? true
         });
         setShowForm(true);
+        setError('');
     };
 
-    const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this reason?')) {
-            setReasons(reasons.filter(r => r.id !== id));
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this reason?')) {
+            return;
+        }
+
+        try {
+            await whyChooseUsService.delete(id);
+            setReasons(reasons.filter(r => r._id !== id));
+        } catch (err: any) {
+            alert('Failed to delete reason: ' + (err.response?.data?.message || err.message));
         }
     };
 
@@ -110,8 +100,10 @@ export default function WhyChooseUsAdmin() {
             title: '',
             description: '',
             icon: 'award',
-            order: reasons.length + 1
+            order: reasons.length,
+            isActive: true
         });
+        setError('');
     };
 
     const filteredReasons = reasons.filter(reason =>
@@ -119,7 +111,22 @@ export default function WhyChooseUsAdmin() {
         reason.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const sortedReasons = [...filteredReasons].sort((a, b) => a.order - b.order);
+    const sortedReasons = [...filteredReasons].sort((a, b) =>
+        (a.order || 0) - (b.order || 0)
+    );
+
+    if (loading) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1>Why Choose Us</h1>
+                </div>
+                <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.container}>
@@ -156,12 +163,19 @@ export default function WhyChooseUsAdmin() {
                             <button
                                 className={styles.closeButton}
                                 onClick={handleCloseForm}
+                                type="button"
                             >
                                 ×
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className={styles.form}>
+                            {error && (
+                                <div className={styles.errorMessage}>
+                                    {error}
+                                </div>
+                            )}
+
                             <div className={styles.formGroup}>
                                 <label htmlFor="title">Title *</label>
                                 <input
@@ -202,9 +216,9 @@ export default function WhyChooseUsAdmin() {
                                         type="number"
                                         id="order"
                                         value={formData.order}
-                                        onChange={(e) => setFormData({...formData, order: parseInt(e.target.value)})}
+                                        onChange={(e) => setFormData({...formData, order: parseInt(e.target.value) || 0})}
                                         required
-                                        min="1"
+                                        min="0"
                                         placeholder="Display order"
                                     />
                                 </div>
@@ -222,16 +236,32 @@ export default function WhyChooseUsAdmin() {
                                 />
                             </div>
 
+                            <div className={styles.formGroup}>
+                                <label className={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.isActive}
+                                        onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                                    />
+                                    Active
+                                </label>
+                            </div>
+
                             <div className={styles.formActions}>
                                 <button
                                     type="button"
                                     onClick={handleCloseForm}
                                     className={styles.cancelBtn}
+                                    disabled={submitLoading}
                                 >
                                     Cancel
                                 </button>
-                                <button type="submit" className={styles.submitBtn}>
-                                    {editingReason ? 'Update' : 'Add'} Reason
+                                <button
+                                    type="submit"
+                                    className={styles.submitBtn}
+                                    disabled={submitLoading}
+                                >
+                                    {submitLoading ? 'Saving...' : (editingReason ? 'Update' : 'Add')} Reason
                                 </button>
                             </div>
                         </form>
@@ -243,40 +273,45 @@ export default function WhyChooseUsAdmin() {
                 Showing {filteredReasons.length} of {reasons.length} reasons
             </div>
 
-            <div className={styles.grid}>
-                {sortedReasons.map((reason) => (
-                    <div key={reason.id} className={styles.reasonCard}>
-                        <div className={styles.cardHeader}>
-                            <div className={styles.iconWrapper}>
-                                <span className={styles.iconBadge}>{reason.icon}</span>
-                                <span className={styles.orderBadge}>#{reason.order}</span>
-                            </div>
-                            <div className={styles.actions}>
-                                <button
-                                    onClick={() => handleEdit(reason)}
-                                    className={styles.editBtn}
-                                    title="Edit reason"
-                                >
-                                    <Edit2 size={16} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(reason.id)}
-                                    className={styles.deleteBtn}
-                                    title="Delete reason"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                        <h3>{reason.title}</h3>
-                        <p>{reason.description}</p>
-                    </div>
-                ))}
-            </div>
-
-            {sortedReasons.length === 0 && (
+            {sortedReasons.length === 0 ? (
                 <div className={styles.emptyState}>
-                    <p>No reasons found. Add your first reason to get started.</p>
+                    <p>No reasons found. {searchTerm ? 'Try a different search.' : 'Add your first reason to get started.'}</p>
+                </div>
+            ) : (
+                <div className={styles.grid}>
+                    {sortedReasons.map((reason) => (
+                        <div key={reason._id} className={styles.reasonCard}>
+                            <div className={styles.cardHeader}>
+                                <div className={styles.iconWrapper}>
+                                    <span className={styles.iconBadge}>{reason.icon}</span>
+                                    <span className={styles.orderBadge}>#{reason.order || 0}</span>
+                                </div>
+                                <div className={styles.actions}>
+                                    <button
+                                        onClick={() => handleEdit(reason)}
+                                        className={styles.editBtn}
+                                        title="Edit reason"
+                                    >
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(reason._id!)}
+                                        className={styles.deleteBtn}
+                                        title="Delete reason"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                            <h3>{reason.title}</h3>
+                            <p>{reason.description}</p>
+                            {!reason.isActive && (
+                                <div className={styles.inactiveBadge}>
+                                    Inactive
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

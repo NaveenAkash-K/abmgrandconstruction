@@ -15,12 +15,12 @@ const actions = [
     href: '/admin/services',
     color: 'green'
   },
-  {
-    icon: Users,
-    label: 'View Clients',
-    href: '/admin/clients',
-    color: 'purple'
-  },
+  // {
+  //   icon: Users,
+  //   label: 'View Clients',
+  //   href: '/admin/clients',
+  //   color: 'purple'
+  // },
   {
     icon: Award,
     label: 'Update About',
