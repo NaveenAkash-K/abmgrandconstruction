@@ -314,6 +314,32 @@
 .emptyState p {
   font-size: 1rem;
 }
+/* ... existing styles ... */
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkboxText {
+    margin-left: 8px;
+    font-weight: 500;
+    color: #334155;
+}
+
+/* Remove default checkbox styles if needed */
+.checkboxLabel input[type="checkbox"] {
+    display: none;
+}
+
+/* Optional: Add hover effect for the label */
+.checkboxLabel:hover .checkboxText {
+    color: #0f172a;
+}
+
 
 @media (max-width: 768px) {
   .grid {

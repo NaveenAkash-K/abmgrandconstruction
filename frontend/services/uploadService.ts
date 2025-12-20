@@ -1,12 +1,21 @@
 import apiClient from './client';
-import { API_ENDPOINTS } from '@/config';
+
+export interface UploadResponse {
+    success: boolean;
+    data: {
+        url: string;
+        filename: string;
+        path: string;
+    };
+    message?: string;
+}
 
 export const uploadService = {
-    uploadImage: async (file: File) => {
+    uploadImage: async (file: File, folder: string = 'services'): Promise<UploadResponse> => {
         const formData = new FormData();
         formData.append('image', file);
 
-        const response = await apiClient.post(API_ENDPOINTS.UPLOAD, formData, {
+        const response = await apiClient.post(`/upload?folder=${folder}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -14,23 +23,16 @@ export const uploadService = {
         return response.data;
     },
 
-    uploadMultiple: async (files: File[]) => {
+    uploadMultipleImages: async (files: File[], folder: string = 'services'): Promise<UploadResponse> => {
         const formData = new FormData();
         files.forEach((file) => {
             formData.append('images', file);
         });
 
-        const response = await apiClient.post(`${API_ENDPOINTS.UPLOAD}/multiple`, formData, {
+        const response = await apiClient.post(`/upload/multiple?folder=${folder}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
-        });
-        return response.data;
-    },
-
-    deleteImage: async (imageUrl: string) => {
-        const response = await apiClient.delete(API_ENDPOINTS.UPLOAD, {
-            data: { imageUrl },
         });
         return response.data;
     },

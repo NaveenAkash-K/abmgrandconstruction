@@ -14,4 +14,5 @@ export const API_ENDPOINTS = {
     CONTACT: '/contact',
     ABOUT: '/about',
     UPLOAD: '/upload',
+    QUOTES: '/quotes',
 };

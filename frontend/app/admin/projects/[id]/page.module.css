@@ -19,7 +19,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #3b82f6;
+  color: #d97706;
   text-decoration: none;
   font-size: 14px;
   margin-bottom: 12px;
@@ -27,7 +27,7 @@
 }
 
 .backButton:hover {
-  color: #2563eb;
+  color: #b45309;
 }
 
 .form {
@@ -142,12 +142,12 @@
 }
 
 .submitButton {
-  background-color: #3b82f6;
+  background-color: #d97706;
   color: white;
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: #b45309;
 }
 
 .submitButton:disabled {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import styles from './page.module.css';
 import { serviceService, Service } from '@/services';
+import {Checkbox} from "@radix-ui/themes";
 
 export default function ServicesAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -166,8 +167,8 @@ export default function ServicesAdmin() {
 
       {showForm && (
         <div className={styles.formModal} onClick={handleCancel}>
-          <div onClick={(e) => e.stopPropagation()}>
-            <form onSubmit={handleSubmit} className={styles.form}>
+          {/*<div onClick={(e) => e.stopPropagation()}>*/}
+            <form onSubmit={handleSubmit} className={styles.form} onClick={(e) => e.stopPropagation()}>
               <h2>{editingService ? 'Edit Service' : 'Add New Service'}</h2>
 
               {error && (
@@ -235,18 +236,17 @@ export default function ServicesAdmin() {
                   min="0"
                 />
               </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                  />
-                  Active
-                </label>
-              </div>
-
+                <div className={styles.formGroup}>
+                    <label className={styles.checkboxLabel}>
+                        <Checkbox
+                            color={"orange"}
+                            size="3"
+                            checked={formData.isActive}
+                            onCheckedChange={(checked) => setFormData({...formData, isActive: checked === true})}
+                        />
+                        <span className={styles.checkboxText}>Active</span>
+                    </label>
+                </div>
               <div className={styles.formActions}>
                 <button
                   type="button"
@@ -265,7 +265,7 @@ export default function ServicesAdmin() {
                 </button>
               </div>
             </form>
-          </div>
+          {/*</div>*/}
         </div>
       )}
 

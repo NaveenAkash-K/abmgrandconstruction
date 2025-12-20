@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import styles from './ContactSection.module.css';
-import { contactService, ContactInfo, ContactMessage } from '@/services';
+import { contactService, quoteService, ContactInfo, QuoteRequest } from '@/services';
 
 interface FormData {
     name: string;
@@ -24,6 +24,8 @@ export default function ContactSection() {
         subject: '',
         message: ''
     });
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [submitError, setSubmitError] = useState('');
 
     useEffect(() => {
         fetchContactInfo();
@@ -44,22 +46,32 @@ export default function ContactSection() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
+        setSubmitError('');
+        setSubmitSuccess(false);
 
         try {
-            const messageData: ContactMessage = {
+            // Send quote request
+            const quoteData: QuoteRequest = {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
-                subject: formData.subject,
-                message: formData.message
+                message: `Subject: ${formData.subject}\n\n${formData.message}`
             };
 
-            await contactService.sendMessage(messageData);
-            alert('Thank you for your inquiry! We will contact you soon.');
+            await quoteService.sendQuote(quoteData);
+
+            setSubmitSuccess(true);
             setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+
+            // Clear success message after 5 seconds
+            setTimeout(() => setSubmitSuccess(false), 5000);
         } catch (error: any) {
-            alert('Failed to send message. Please try again.');
-            console.error('Failed to send message:', error);
+            const errorMessage = error.response?.data?.message || 'Failed to send message. Please try again.';
+            setSubmitError(errorMessage);
+            console.error('Failed to send quote:', error);
+
+            // Clear error message after 5 seconds
+            setTimeout(() => setSubmitError(''), 5000);
         } finally {
             setSubmitting(false);
         }
@@ -67,17 +79,6 @@ export default function ContactSection() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    // Generate Google Maps URL from address
-    const getMapEmbedUrl = () => {
-        if (!contactInfo) {
-            return 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.1422937950147!2d-73.98731968482413!3d40.74844097932681!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus';
-        }
-
-        const address = `${contactInfo.streetAddress}, ${contactInfo.cityAndZip}, ${contactInfo.country}`;
-        const encodedAddress = encodeURIComponent(address);
-        return `https://www.google.com/maps/embed/v1/place?key=&q=${encodedAddress}`;
     };
 
     // Generate Google Maps directions URL
@@ -104,6 +105,17 @@ export default function ContactSection() {
                 <div className={styles.contactGrid}>
                     <div className={styles.contactFormWrapper}>
                         <form onSubmit={handleSubmit} className={styles.contactForm}>
+                            {submitSuccess && (
+                                <div className={styles.successMessage}>
+                                    Thank you for your inquiry! We will contact you soon.
+                                </div>
+                            )}
+                            {submitError && (
+                                <div className={styles.errorMessage}>
+                                    {submitError}
+                                </div>
+                            )}
+
                             <div className={styles.formGroup}>
                                 <label htmlFor="name">Name *</label>
                                 <input

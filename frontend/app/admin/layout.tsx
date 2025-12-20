@@ -4,6 +4,8 @@ import styles from './layout.module.css';
 import { generateMetadata } from '@/components/shared/utils/SEO';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import React from "react";
+import { Theme } from "@radix-ui/themes";
+import "./../globals.css"
 
 export const metadata = generateMetadata({
   title: 'Admin Dashboard - ABM GRAND CONSTRUCTION',
@@ -18,12 +20,14 @@ export default function AdminLayout({
 }) {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-100">
+        <Theme>
+      <div className="min-h-screen bg-gray-100 admin-page-root">
         <AdminSidebar />
         <main className="container mx-auto py-6">
           {children}
         </main>
       </div>
+            </Theme>
     </ProtectedRoute>
   );
 }
