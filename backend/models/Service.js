@@ -17,11 +17,6 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide an icon name'],
     },
-    features: [
-      {
-        type: String,
-      },
-    ],
     image: {
       type: String,
     },

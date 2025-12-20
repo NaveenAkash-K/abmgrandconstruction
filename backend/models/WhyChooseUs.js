@@ -8,11 +8,6 @@ const whyChooseUsSchema = new mongoose.Schema(
       trim: true,
       maxlength: [100, 'Title cannot be more than 100 characters'],
     },
-    description: {
-      type: String,
-      required: [true, 'Please provide a description'],
-      maxlength: [500, 'Description cannot be more than 500 characters'],
-    },
     icon: {
       type: String,
       required: [true, 'Please provide an icon name'],
@@ -21,14 +16,17 @@ const whyChooseUsSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
+    description: {
+      type: String,
+      required: [true, 'Please provide a description'],
+      maxlength: [500, 'Description cannot be more than 500 characters'],
     },
   },
   {
     timestamps: true,
   }
 );
+
+whyChooseUsSchema.index({ displayOrder: 1 });
 
 module.exports = mongoose.model('WhyChooseUs', whyChooseUsSchema);
