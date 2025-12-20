@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
-const Image = require('../models/Image');
 const ErrorResponse = require('../utils/errorResponse');
+const supabase = require('../config/supabase');
 
 class UploadService {
   validateImageFile(file) {
@@ -20,19 +20,32 @@ class UploadService {
   async uploadSingleImage(file, folder = 'uploads') {
     this.validateImageFile(file);
 
-    const base64Data = file.buffer.toString('base64');
     const filename = `${uuidv4()}${path.extname(file.originalname)}`;
+    const filePath = `${folder}/${filename}`;
 
-    const image = await Image.create({
+    const { data, error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET_NAME)
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      throw new ErrorResponse(`Failed to upload image: ${error.message}`, 500);
+    }
+
+    const { data: urlData } = supabase.storage
+      .from(process.env.SUPABASE_BUCKET_NAME)
+      .getPublicUrl(filePath);
+
+    return {
+      url: urlData.publicUrl,
       filename,
       originalName: file.originalname,
       mimetype: file.mimetype,
       size: file.size,
-      data: base64Data,
-      folder,
-    });
-
-    return image;
+    };
   }
 
   async uploadMultipleImages(files, folder = 'uploads') {
@@ -43,54 +56,41 @@ class UploadService {
     const uploadedImages = [];
 
     for (const file of files) {
-      const base64Data = file.buffer.toString('base64');
       const filename = `${uuidv4()}${path.extname(file.originalname)}`;
+      const filePath = `${folder}/${filename}`;
 
-      const image = await Image.create({
+      const { data, error } = await supabase.storage
+        .from(process.env.SUPABASE_BUCKET_NAME)
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) {
+        throw new ErrorResponse(`Failed to upload image: ${error.message}`, 500);
+      }
+
+      const { data: urlData } = supabase.storage
+        .from(process.env.SUPABASE_BUCKET_NAME)
+        .getPublicUrl(filePath);
+
+      uploadedImages.push({
+        url: urlData.publicUrl,
         filename,
         originalName: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
-        data: base64Data,
-        folder,
       });
-
-      uploadedImages.push(image);
     }
 
     return uploadedImages;
   }
 
-  async getImageById(imageId) {
-    const image = await Image.findById(imageId);
-
-    if (!image) {
-      throw new ErrorResponse('Image not found', 404);
-    }
-
-    return image;
-  }
-
-  async getImageInfo(imageId) {
-    const image = await Image.findById(imageId).select('-data');
-
-    if (!image) {
-      throw new ErrorResponse('Image not found', 404);
-    }
-
-    return image;
-  }
-
-  async deleteImage(imageId) {
-    const image = await Image.findById(imageId);
-
-    if (!image) {
-      throw new ErrorResponse('Image not found', 404);
-    }
-
-    await image.deleteOne();
-
-    return { message: 'Image deleted successfully' };
+  extractPathFromUrl(imageUrl) {
+    if (!imageUrl) return null;
+    const parts = imageUrl.split('/public/' + process.env.SUPABASE_BUCKET_NAME + '/');
+    return parts.length > 1 ? parts[1] : null;
   }
 
   async deleteImageByUrl(imageUrl) {
@@ -98,53 +98,46 @@ class UploadService {
       throw new ErrorResponse('Please provide an image URL', 400);
     }
 
-    const imageId = imageUrl.split('/').pop();
-    const image = await Image.findById(imageId);
+    const filePath = this.extractPathFromUrl(imageUrl);
 
-    if (!image) {
-      throw new ErrorResponse('Image not found', 404);
+    if (!filePath) {
+      throw new ErrorResponse('Invalid image URL format', 400);
     }
 
-    await image.deleteOne();
+    const { error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET_NAME)
+      .remove([filePath]);
+
+    if (error) {
+      throw new ErrorResponse(`Failed to delete image from storage: ${error.message}`, 500);
+    }
 
     return { message: 'Image deleted successfully' };
   }
 
-  async deleteMultipleImages(imageIds) {
-    if (!imageIds || !Array.isArray(imageIds) || imageIds.length === 0) {
-      throw new ErrorResponse('Please provide an array of image IDs', 400);
+
+  async deleteMultipleImagesByUrls(imageUrls) {
+    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+      throw new ErrorResponse('Please provide an array of image URLs', 400);
     }
 
-    const result = await Image.deleteMany({ _id: { $in: imageIds } });
+    const filePaths = imageUrls
+      .map(url => this.extractPathFromUrl(url))
+      .filter(path => path !== null);
 
-    return { deletedCount: result.deletedCount };
-  }
+    if (filePaths.length > 0) {
+      const { error } = await supabase.storage
+        .from(process.env.SUPABASE_BUCKET_NAME)
+        .remove(filePaths);
 
-  async getAllImages(filters = {}) {
-    const { folder, page = 1, limit = 20 } = filters;
-
-    const query = {};
-    if (folder) {
-      query.folder = folder;
+      if (error) {
+        throw new ErrorResponse(`Failed to delete images from storage: ${error.message}`, 500);
+      }
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const images = await Image.find(query)
-      .select('-data')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    const total = await Image.countDocuments(query);
-
-    return {
-      images,
-      total,
-      page: parseInt(page),
-      pages: Math.ceil(total / parseInt(limit)),
-    };
+    return { deletedCount: filePaths.length };
   }
+
 }
 
 module.exports = new UploadService();

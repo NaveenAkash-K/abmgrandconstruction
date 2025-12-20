@@ -17,7 +17,7 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide an icon name'],
     },
-    image: {
+    imageUrl: {
       type: String,
     },
     order: {

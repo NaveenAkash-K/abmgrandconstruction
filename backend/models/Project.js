@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema(
   {
-    image: {
+    imageUrl: {
       type: String,
-      required: [true, 'Please provide a project image'],
+      required: [true, 'Please provide a project image URL'],
     },
     title: {
       type: String,

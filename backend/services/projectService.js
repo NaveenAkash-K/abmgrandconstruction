@@ -1,5 +1,6 @@
 const Project = require('../models/Project');
 const ErrorResponse = require('../utils/errorResponse');
+const uploadService = require('./uploadService');
 
 class ProjectService {
   async getAllProjects(filters = {}) {
@@ -24,10 +25,10 @@ class ProjectService {
   }
 
   async createProject(projectData) {
-    const { image, title, location, status } = projectData;
+    const { imageUrl, title, location, status } = projectData;
 
     const project = await Project.create({
-      image,
+      imageUrl,
       title,
       location,
       status,
@@ -43,10 +44,18 @@ class ProjectService {
       throw new ErrorResponse(`Project not found with id of ${projectId}`, 404);
     }
 
-    const { image, title, location, status } = projectData;
+    const { imageUrl, title, location, status } = projectData;
+
+    if (imageUrl !== undefined && project.imageUrl && imageUrl !== project.imageUrl) {
+      try {
+        await uploadService.deleteImageByUrl(project.imageUrl);
+      } catch (error) {
+        console.error('Failed to delete old image:', error.message);
+      }
+    }
 
     const updateFields = {};
-    if (image !== undefined) updateFields.image = image;
+    if (imageUrl !== undefined) updateFields.imageUrl = imageUrl;
     if (title !== undefined) updateFields.title = title;
     if (location !== undefined) updateFields.location = location;
     if (status !== undefined) updateFields.status = status;
@@ -64,6 +73,14 @@ class ProjectService {
 
     if (!project) {
       throw new ErrorResponse(`Project not found with id of ${projectId}`, 404);
+    }
+
+    if (project.imageUrl) {
+      try {
+        await uploadService.deleteImageByUrl(project.imageUrl);
+      } catch (error) {
+        console.error('Failed to delete image from Supabase:', error.message);
+      }
     }
 
     await project.deleteOne();

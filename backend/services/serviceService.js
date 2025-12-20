@@ -1,5 +1,6 @@
 const Service = require('../models/Service');
 const ErrorResponse = require('../utils/errorResponse');
+const uploadService = require('./uploadService');
 
 class ServiceService {
   async getAllServices(filters = {}) {
@@ -37,6 +38,14 @@ class ServiceService {
       throw new ErrorResponse(`Service not found with id of ${serviceId}`, 404);
     }
 
+    if (serviceData.imageUrl !== undefined && service.imageUrl && serviceData.imageUrl !== service.imageUrl) {
+      try {
+        await uploadService.deleteImageByUrl(service.imageUrl);
+      } catch (error) {
+        console.error('Failed to delete old image:', error.message);
+      }
+    }
+
     service = await Service.findByIdAndUpdate(serviceId, serviceData, {
       new: true,
       runValidators: true,
@@ -50,6 +59,14 @@ class ServiceService {
 
     if (!service) {
       throw new ErrorResponse(`Service not found with id of ${serviceId}`, 404);
+    }
+
+    if (service.imageUrl) {
+      try {
+        await uploadService.deleteImageByUrl(service.imageUrl);
+      } catch (error) {
+        console.error('Failed to delete image from Supabase:', error.message);
+      }
     }
 
     await service.deleteOne();
