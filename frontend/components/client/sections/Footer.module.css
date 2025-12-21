@@ -35,6 +35,11 @@
     gap: 8px;
     margin-bottom: 16px;
 }
+.logoIcon {
+    width: 50px;
+    height: 32px;
+    color: #d97706;
+}
 
 .footerIcon {
     width: 32px;

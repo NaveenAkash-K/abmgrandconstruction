@@ -33,8 +33,6 @@ export default function WhyChooseUsSection() {
             const response = await whyChooseUsService.getAll();
             // Filter only active reasons and sort by order
             const activeReasons = (response.data || [])
-                .filter((reason: WhyChooseUs) => reason.isActive)
-                .sort((a: WhyChooseUs, b: WhyChooseUs) => (a.order || 0) - (b.order || 0));
             setReasons(activeReasons);
         } catch (error) {
             console.error('Failed to fetch reasons:', error);
@@ -57,9 +55,9 @@ export default function WhyChooseUsSection() {
         );
     }
 
-    if (reasons.length === 0) {
-        return null; // Don't show section if no reasons
-    }
+    // if (reasons.length === 0) {
+    //     return null; // Don't show section if no reasons
+    // }
 
     return (
         <section className={styles.whyChooseSection}>

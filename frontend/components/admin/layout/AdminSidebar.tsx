@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Briefcase,
@@ -15,9 +15,11 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import styles from './AdminSidebar.module.css';
 import logo from "@/assets/logo.png";
 import Image from "next/image";
+import { authService } from '@/services/authService';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
@@ -31,7 +33,22 @@ const menuItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      // authService.logout();
+        localStorage.removeItem('token');
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <>
@@ -69,10 +86,39 @@ export default function AdminSidebar() {
         </nav>
 
         <div className={styles.footer}>
-          <button className={styles.logoutButton}>
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
+          <AlertDialog.Root>
+            <AlertDialog.Trigger asChild>
+              <button className={styles.logoutButton}>
+                <LogOut size={20} />
+                <span>Logout</span>
+              </button>
+            </AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Overlay className={styles.alertOverlay} />
+              <AlertDialog.Content className={styles.alertContent}>
+                <AlertDialog.Title className={styles.alertTitle}>
+                  Confirm Logout
+                </AlertDialog.Title>
+                <AlertDialog.Description className={styles.alertDescription}>
+                  Are you sure you want to logout? You will need to login again to access the admin panel.
+                </AlertDialog.Description>
+                <div className={styles.alertActions}>
+                  <AlertDialog.Cancel asChild>
+                    <button className={styles.alertCancelButton}>Cancel</button>
+                  </AlertDialog.Cancel>
+                  <AlertDialog.Action asChild>
+                    <button
+                      className={styles.alertLogoutButton}
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                    >
+                      {isLoggingOut ? 'Logging out...' : 'Logout'}
+                    </button>
+                  </AlertDialog.Action>
+                </div>
+              </AlertDialog.Content>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
         </div>
       </aside>
     </>

@@ -236,36 +236,37 @@ export default function ContactSection() {
                         </div>
 
                         {/* Google Maps Integration */}
-                        <div className={styles.mapContainer}>
-                            <div className={styles.mapHeader}>
-                                <h4>
-                                    <MapPin size={18} />
-                                    Find Us on Map
-                                </h4>
-                                <a
-                                    href={getDirectionsUrl()}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.directionsButton}
-                                >
-                                    Get Directions
-                                </a>
-                            </div>
-                            <div className={styles.mapWrapper}>
-                                <iframe
-                                    src={`https://www.google.com/maps?q=${encodeURIComponent(
-                                        contactInfo 
-                                            ? `${contactInfo.streetAddress}, ${contactInfo.cityAndZip}, ${contactInfo.country}`
-                                            : '123 Construction Boulevard, Business District, NY 10001, United States'
-                                    )}&output=embed`}
-                                    className={styles.mapIframe}
-                                    allowFullScreen
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                    title="Office Location"
-                                />
-                            </div>
-                        </div>
+
+                    </div>
+                </div>
+                <div className={styles.mapContainer}>
+                    <div className={styles.mapHeader}>
+                        <h4>
+                            <MapPin size={18} />
+                            Find Us on Map
+                        </h4>
+                        <a
+                            href={getDirectionsUrl()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.directionsButton}
+                        >
+                            Get Directions
+                        </a>
+                    </div>
+                    <div className={styles.mapWrapper}>
+                        <iframe
+                            src={`https://www.google.com/maps?q=${encodeURIComponent(
+                                contactInfo
+                                    ? `${contactInfo.streetAddress}, ${contactInfo.cityAndZip}, ${contactInfo.country}`
+                                    : '123 Construction Boulevard, Business District, NY 10001, United States'
+                            )}&output=embed`}
+                            className={styles.mapIframe}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Office Location"
+                        />
                     </div>
                 </div>
             </div>

@@ -65,7 +65,7 @@ export default function ProjectsSection() {
                                     height={500}
                                 />
                                 <div
-                                    className={`${styles.projectStatus} ${styles[`status${project.status.replace(' ', '')}`]}`}>
+                                    className={`${styles.projectStatus} ${styles[`${project.status.toLowerCase()}`]}`}>
                                     {project.status}
                                 </div>
                             </div>

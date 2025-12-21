@@ -1,112 +1,212 @@
 /* continued */
 .container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
 }
 
 .form {
-  background: white;
-  padding: 48px;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+    background: white;
+    padding: 48px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
 }
 
 .logo {
-  text-align: center;
-  margin-bottom: 32px;
+    text-align: center;
+    margin-bottom: 32px;
 }
 
 .logo h1 {
-  color: #0f172a;
-  font-size: 2rem;
-  margin-bottom: 8px;
+    color: #0f172a;
+    font-size: 2rem;
+    margin-bottom: 8px;
 }
 
 .logo p {
-  color: #64748b;
-  font-size: 0.875rem;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.backButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 24px;
+    transition: color 0.2s ease;
+}
+
+.backButton:hover {
+    color: #d97706;
 }
 
 .errorMessage {
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
 }
 
 .errorMessage p {
-  color: #dc2626;
-  font-size: 0.875rem;
-  margin: 0;
-  text-align: center;
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin: 0;
+    text-align: center;
 }
 
 .formGroup {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .inputWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
 .inputWrapper:focus-within {
-  border-color: #d97706;
-  background-color: white;
+    border-color: #d97706;
+    background-color: white;
 }
 
-.inputWrapper svg {
-  position: absolute;
-  left: 16px;
-  color: #94a3b8;
+.inputWrapper > svg:first-child {
+    position: absolute;
+    left: 16px;
+    color: #94a3b8;
+    pointer-events: none;
 }
 
 .inputWrapper input {
-  width: 100%;
-  padding: 12px 16px 12px 48px;
-  background: transparent;
-  border: none;
-  font-size: 1rem;
+    width: 100%;
+    padding: 12px 48px 12px 48px;
+    background: transparent;
+    border: none;
+    font-size: 1rem;
 }
 
 .inputWrapper input:focus {
-  outline: none;
+    outline: none;
 }
 
 .inputWrapper input:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.eyeButton {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.eyeButton:hover {
+    color: #64748b;
+}
+
+.forgotPasswordLink {
+    background: none;
+    border: none;
+    color: #d97706;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 20px;
+    display: block;
+    text-align: right;
+    width: 100%;
+    transition: color 0.2s ease;
+}
+
+.forgotPasswordLink:hover {
+    color: #b45309;
+    text-decoration: underline;
 }
 
 .submitButton {
-  width: 100%;
-  padding: 12px 24px;
-  background-color: #d97706;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    width: 100%;
+    padding: 12px 24px;
+    background-color: #d97706;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #b45309;
+    background-color: #b45309;
 }
 
 .submitButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.resendButton {
+    width: 100%;
+    padding: 12px 24px;
+    background: none;
+    color: #64748b;
+    border: none;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: color 0.2s ease;
+}
+
+.resendButton:hover:not(:disabled) {
+    color: #d97706;
+    text-decoration: underline;
+}
+
+.resendButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.successIcon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.successIcon svg {
+    color: #22c55e;
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+    .form {
+        padding: 32px 24px;
+    }
+
+    .logo h1 {
+        font-size: 1.5rem;
+    }
 }

@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Building2, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import styles from './Footer.module.css';
 import { contactService, ContactInfo } from '@/services';
+import logo from "@/assets/logo.png";
+import Image from "next/image";
 
 export default function Footer() {
     const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
@@ -26,7 +28,8 @@ export default function Footer() {
                 <div className={styles.footerGrid}>
                     <div className={styles.footerInfo}>
                         <div className={styles.footerLogo}>
-                            <Building2 className={styles.footerIcon} />
+                            {/*<Building2 className={styles.footerIcon} />*/}
+                            <Image src={logo} alt={""} className={styles.logoIcon}/>
                             <span>ABM GRAND CONSTRUCTION</span>
                         </div>
                         <p>

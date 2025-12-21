@@ -93,15 +93,15 @@
     font-size: 0.875rem;
 }
 
-.statusCompleted {
+.completed {
     background-color: #10b981;
 }
 
-.statusInProgress {
+.ongoing {
     background-color: #f59e0b;
 }
 
-.statusPlanning {
+.planing {
     background-color: #3b82f6;
 }
 

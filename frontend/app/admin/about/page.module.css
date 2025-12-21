@@ -5,7 +5,7 @@
 }
 
 .header {
-  margin-bottom: 32px;
+  /*margin-bottom: 32px;*/
 }
 
 .header h1 {
@@ -116,9 +116,9 @@
 }
 
 .statsSection {
-  margin-top: 32px;
-  padding-top: 32px;
-  border-top: 2px solid #e2e8f0;
+  /*margin-top: 32px;*/
+  /*padding-top: 32px;*/
+  /*border-top: 2px solid #e2e8f0;*/
 }
 
 .statsSection h3 {
@@ -257,7 +257,7 @@
 }
 
 .formGroup input:valid:not(:placeholder-shown) {
-  border-color: #10b981;
+  /*border-color: #10b981;*/
 }
 
 .formGroup textarea:invalid:not(:placeholder-shown) {
@@ -265,7 +265,7 @@
 }
 
 .formGroup textarea:valid:not(:placeholder-shown) {
-  border-color: #10b981;
+  /*border-color: #10b981;*/
 }
 
 /* Hover effects */
@@ -278,8 +278,8 @@
 .saveButton:focus-visible,
 .formGroup input:focus-visible,
 .formGroup textarea:focus-visible {
-  outline: 2px solid #d97706;
-  outline-offset: 2px;
+  /*outline: 2px solid #d97706;*/
+  /*outline-offset: 2px;*/
 }
 
 /* Values textarea special styling */

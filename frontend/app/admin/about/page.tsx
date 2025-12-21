@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import styles from './page.module.css';
 import { aboutService, About } from '@/services';
@@ -57,7 +57,10 @@ export default function AboutAdmin() {
           vision: response.data.vision || '',
           values: response.data.values || [],
           teamImage: response.data.teamImage || '',
-          yearsFounded: response.data.yearsFounded || undefined
+          yearsFounded: response.data.yearsFounded || undefined,
+            yearsOfExperience: response.data.yearsOfExperience || 0,
+            completedProjects: response.data.completedProjects || 0,
+            locationsServed: response.data.locationsServed || 0
         });
 
         // Set stats data for display (these might come from backend or be calculated)
@@ -105,8 +108,8 @@ export default function AboutAdmin() {
   };
 
   const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const year = parseInt(e.target.value);
-    setFormData(prev => ({ ...prev, yearsFounded: year }));
+    const year = new Date().getFullYear() - parseInt(e.target.value);
+    setFormData(prev => ({ ...prev, yearsOfExperience: year }));
   };
 
   const handleValuesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -144,17 +147,55 @@ export default function AboutAdmin() {
       )}
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label htmlFor="title">Section Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="e.g., About ABM Grand Construction"
-          />
-        </div>
+          <div className={styles.statsSection}>
+              <h3>Company Statistics</h3>
+              <div className={styles.statsGrid}>
+                  <div className={styles.formGroup}>
+                      <label htmlFor="yearsFounded">Year Founded *</label>
+                      <input
+                          type="number"
+                          id="yearsFounded"
+                          name="yearsFounded"
+                          value={( new Date().getFullYear() - (formData.yearsOfExperience || 0)) || ''}
+                          onChange={handleYearChange}
+                          required
+                          min="1900"
+                          max={new Date().getFullYear()}
+                          placeholder="e.g., 1999"
+                      />
+                      {formData.yearsOfExperience && (
+                          <small className={styles.helpText}>
+                              {formData.yearsOfExperience} years of experience
+                          </small>
+                      )}
+                  </div>
+
+                  <div className={styles.formGroup}>
+                      <label htmlFor="completedProjects">Completed Projects Display</label>
+                      <input
+                          type="number"
+                          id="completedProjects"
+                          value={formData.completedProjects}
+                          onChange={(e) => setFormData({...formData, completedProjects: parseInt(e.target.value)})}
+                          placeholder="e.g., 500+"
+                      />
+                      {/*<small className={styles.helpText}>Display value (not stored in backend)</small>*/}
+                  </div>
+
+                  <div className={styles.formGroup}>
+                      <label htmlFor="locationsServed">Locations Served Display</label>
+                      <input
+                          type="number"
+                          id="locationsServed"
+                          value={formData.locationsServed}
+                          onChange={(e) => setFormData({...formData, locationsServed: parseInt(e.target.value)})}
+                          placeholder="e.g., 15+"
+                      />
+                      {/*<small className={styles.helpText}>Display value (not stored in backend)</small>*/}
+                  </div>
+              </div>
+          </div>
+
 
         <div className={styles.formGroup}>
           <label htmlFor="description">Company Description *</label>
@@ -169,114 +210,6 @@ export default function AboutAdmin() {
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="mission">Mission Statement</label>
-          <textarea
-            id="mission"
-            name="mission"
-            value={formData.mission}
-            onChange={handleChange}
-            rows={3}
-            placeholder="Enter your company's mission statement (optional)"
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="vision">Vision Statement</label>
-          <textarea
-            id="vision"
-            name="vision"
-            value={formData.vision}
-            onChange={handleChange}
-            rows={3}
-            placeholder="Enter your company's vision statement (optional)"
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="values">Company Values</label>
-          <textarea
-            id="values"
-            value={formData.values?.join('\n')}
-            onChange={handleValuesChange}
-            rows={5}
-            placeholder="Enter one value per line, e.g.:
-Quality Excellence
-Customer Satisfaction
-Innovation"
-          />
-          <small className={styles.helpText}>Enter one value per line</small>
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="teamImage">Team Image URL</label>
-          <input
-            type="text"
-            id="teamImage"
-            name="teamImage"
-            value={formData.teamImage}
-            onChange={handleChange}
-            placeholder="Enter team/office image URL (optional)"
-          />
-        </div>
-
-        {formData.teamImage && (
-          <div className={styles.imagePreview}>
-            <label>Image Preview</label>
-            <div className={styles.previewContainer}>
-              <img src={formData.teamImage} alt="Team preview" />
-            </div>
-          </div>
-        )}
-
-        <div className={styles.statsSection}>
-          <h3>Company Statistics</h3>
-          <div className={styles.statsGrid}>
-            <div className={styles.formGroup}>
-              <label htmlFor="yearsFounded">Year Founded *</label>
-              <input
-                type="number"
-                id="yearsFounded"
-                name="yearsFounded"
-                value={formData.yearsFounded || ''}
-                onChange={handleYearChange}
-                required
-                min="1900"
-                max={new Date().getFullYear()}
-                placeholder="e.g., 1999"
-              />
-              {statsData.yearsExperience && (
-                <small className={styles.helpText}>
-                  {statsData.yearsExperience} years of experience
-                </small>
-              )}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="completedProjects">Completed Projects Display</label>
-              <input
-                type="text"
-                id="completedProjects"
-                value={statsData.completedProjects}
-                onChange={(e) => setStatsData({...statsData, completedProjects: e.target.value})}
-                placeholder="e.g., 500+"
-              />
-              <small className={styles.helpText}>Display value (not stored in backend)</small>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="locationsServed">Locations Served Display</label>
-              <input
-                type="text"
-                id="locationsServed"
-                value={statsData.locationsServed}
-                onChange={(e) => setStatsData({...statsData, locationsServed: e.target.value})}
-                placeholder="e.g., 15+"
-              />
-              <small className={styles.helpText}>Display value (not stored in backend)</small>
-            </div>
-          </div>
-        </div>
 
         <div className={styles.formActions}>
           {saved && <span className={styles.successMessage}>Changes saved successfully!</span>}
