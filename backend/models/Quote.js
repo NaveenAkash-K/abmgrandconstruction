@@ -24,10 +24,17 @@ const quoteSchema = new mongoose.Schema(
       trim: true,
       maxlength: [20, 'Phone number cannot be more than 20 characters'],
     },
-    message: {
+    siteLocation: {
       type: String,
-      required: [true, 'Please provide a message'],
-      maxlength: [2000, 'Message cannot be more than 2000 characters'],
+      required: [true, 'Please provide a site location'],
+      trim: true,
+      maxlength: [200, 'Site location cannot be more than 200 characters'],
+    },
+    service: {
+      type: String,
+      required: [true, 'Please provide a service'],
+      trim: true,
+      maxlength: [100, 'Service cannot be more than 100 characters'],
     },
   },
   {

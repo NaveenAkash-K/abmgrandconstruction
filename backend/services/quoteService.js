@@ -31,7 +31,7 @@ class QuoteService {
       return;
     }
 
-    const { name, email, phone, message } = quoteData;
+    const { name, email, phone, siteLocation, service } = quoteData;
     const recipientEmail = process.env.QUOTE_NOTIFICATION_EMAIL || process.env.EMAIL_USER;
 
     const mailOptions = {
@@ -48,10 +48,8 @@ class QuoteService {
             <p style="margin: 10px 0;"><strong>Name:</strong> ${name}</p>
             <p style="margin: 10px 0;"><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
             <p style="margin: 10px 0;"><strong>Phone:</strong> <a href="tel:${phone}">${phone}</a></p>
-            <p style="margin: 10px 0;"><strong>Message:</strong></p>
-            <div style="background-color: white; padding: 15px; border-left: 3px solid #4CAF50; margin-top: 10px;">
-              ${message.replace(/\n/g, '<br>')}
-            </div>
+            <p style="margin: 10px 0;"><strong>Service:</strong> ${service}</p>
+            <p style="margin: 10px 0;"><strong>Site Location:</strong> ${siteLocation}</p>
           </div>
           
           <p style="color: #666; font-size: 12px; margin-top: 30px;">
@@ -65,9 +63,8 @@ New Quote Request
 Name: ${name}
 Email: ${email}
 Phone: ${phone}
-
-Message:
-${message}
+Service: ${service}
+Site Location: ${siteLocation}
 
 ---
 This is an automated notification from ABM Grand Construction website.
@@ -83,17 +80,18 @@ This is an automated notification from ABM Grand Construction website.
   }
 
   async createQuote(quoteData) {
-    const { name, email, phone, message } = quoteData;
+    const { name, email, phone, siteLocation, service } = quoteData;
 
-    if (!name || !email || !phone || !message) {
-      throw new ErrorResponse('Please provide name, email, phone, and message', 400);
+    if (!name || !email || !phone || !siteLocation || !service) {
+      throw new ErrorResponse('Please provide name, email, phone, site location, and service', 400);
     }
 
     const quote = await Quote.create({
       name,
       email,
       phone,
-      message,
+      siteLocation,
+      service,
     });
 
     await this.sendQuoteNotification(quoteData);

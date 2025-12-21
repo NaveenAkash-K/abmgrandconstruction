@@ -33,15 +33,27 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.updatePassword = asyncHandler(async (req, res, next) => {
-  const { currentPassword, newPassword } = req.body;
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
 
-  const result = await authService.updatePassword(req.user.id, currentPassword, newPassword);
+  const result = await authService.forgotPassword(email);
+
+  res.status(200).json({
+    success: true,
+    message: result.message,
+  });
+});
+
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  const { email, otp, newPassword } = req.body;
+
+  const result = await authService.verifyOTPAndResetPassword(email, otp, newPassword);
 
   res.status(200).json({
     success: true,
     token: result.token,
     user: result.user,
+    message: result.message,
   });
 });
 
