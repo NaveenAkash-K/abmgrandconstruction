@@ -59,7 +59,7 @@ export default function ProjectsSection() {
                             <div className={styles.projectImageWrapper}>
                                 <img
                                     className={styles.projectImage}
-                                    src={project.image || project.images?.[0] || 'https://images.unsplash.com/photo-1763189158851-a12144e779b5?w=400'}
+                                    src={project.imageUrl || project.images?.[0] || 'https://images.unsplash.com/photo-1763189158851-a12144e779b5?w=400'}
                                     alt={project.title}
                                     width={500}
                                     height={500}

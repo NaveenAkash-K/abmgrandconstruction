@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Upload, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import styles from './page.module.css';
-import { projectService, Project } from '@/services';
+import { projectService, Project, uploadService } from '@/services';
 
 export default function ProjectForm() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const isEdit = params.id !== 'new';
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<Partial<Project>>({
     title: '',
@@ -23,6 +24,7 @@ export default function ProjectForm() {
   });
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEdit);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -45,12 +47,52 @@ export default function ProjectForm() {
         image: project.image || '',
         startDate: project.startDate ? new Date(project.startDate).toISOString().split('T')[0] : '',
         endDate: project.endDate ? new Date(project.endDate).toISOString().split('T')[0] : '',
+          imageUrl: project.imageUrl || '',
       });
     } catch (err: any) {
       console.error('Failed to fetch project:', err);
       setError('Failed to load project details');
     } finally {
       setFetchLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setError('');
+      const response = await uploadService.uploadImage(file, 'projects');
+
+      if (response.success && response.data.url) {
+        setFormData(prev => ({ ...prev, imageUrl: response.data.url }));
+      }
+    } catch (err: any) {
+      console.error('Failed to upload image:', err);
+      setError(err.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ ...prev, image: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -124,19 +166,6 @@ export default function ProjectForm() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="location">Location *</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              required
-              placeholder="Enter project location"
-            />
-          </div>
-
-          <div className={styles.formGroup}>
             <label htmlFor="status">Status *</label>
             <select
               id="status"
@@ -149,18 +178,6 @@ export default function ProjectForm() {
               <option value="ONGOING">Ongoing</option>
               <option value="COMPLETED">Completed</option>
             </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="image">Image URL</label>
-            <input
-              type="text"
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="Enter image URL"
-            />
           </div>
 
           <div className={styles.formGroup}>
@@ -186,6 +203,19 @@ export default function ProjectForm() {
           </div>
 
           <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+            <label htmlFor="location">Location *</label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              required
+              placeholder="Enter project location"
+            />
+          </div>
+
+          <div className={`${styles.formGroup} ${styles.fullWidth}`}>
             <label htmlFor="description">Description</label>
             <textarea
               id="description"
@@ -196,13 +226,60 @@ export default function ProjectForm() {
               placeholder="Enter project description"
             />
           </div>
+
+          <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+            <label>Project Image</label>
+
+            {!formData.imageUrl ? (
+              <div
+                className={styles.uploadArea}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload size={48} />
+                <p>Click to upload project image</p>
+                <span>PNG, JPG, JPEG up to 5MB</span>
+                {uploadingImage && (
+                  <div className={styles.uploadProgress}>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mt-4"></div>
+                    <p className={styles.uploadingText}>Uploading...</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={styles.imagePreview}>
+                <img
+                  src={formData.imageUrl}
+                  alt="Project preview"
+                  className={styles.previewImage}
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className={styles.removeButton}
+                  disabled={uploadingImage}
+                >
+                  <X size={20} />
+                  Remove Image
+                </button>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className={styles.fileInput}
+              disabled={uploadingImage}
+            />
+          </div>
         </div>
 
         <div className={styles.formActions}>
           <Link href="/admin/projects" className={styles.cancelButton}>
             Cancel
           </Link>
-          <button type="submit" className={styles.submitButton} disabled={loading}>
+          <button type="submit" className={styles.submitButton} disabled={loading || uploadingImage}>
             {loading ? 'Saving...' : (isEdit ? 'Update Project' : 'Add Project')}
           </button>
         </div>

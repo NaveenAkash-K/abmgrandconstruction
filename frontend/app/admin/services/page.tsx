@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, Edit2, Trash2, Search, Upload, X } from 'lucide-react';
 import styles from './page.module.css';
-import { serviceService, Service } from '@/services';
+import { serviceService, Service, uploadService } from '@/services';
 import {Checkbox} from "@radix-ui/themes";
 
 export default function ServicesAdmin() {
@@ -13,7 +13,9 @@ export default function ServicesAdmin() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<Partial<Service>>({
     title: '',
@@ -39,6 +41,45 @@ export default function ServicesAdmin() {
       setError('Failed to load services');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setError('');
+      const response = await uploadService.uploadImage(file, 'services');
+
+      if (response.success && response.data.url) {
+        setFormData(prev => ({ ...prev, image: response.data.url, imageUrl: response.data.url }));
+      }
+    } catch (err: any) {
+      console.error('Failed to upload image:', err);
+      setError(err.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ ...prev, image: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -87,7 +128,8 @@ export default function ServicesAdmin() {
       icon: service.icon,
       image: service.image || '',
       order: service.order || 0,
-      isActive: service.isActive ?? true
+      isActive: service.isActive ?? true,
+        imageUrl: service.imageUrl || '',
     });
     setShowForm(true);
     setError('');
@@ -118,6 +160,9 @@ export default function ServicesAdmin() {
       isActive: true
     });
     setError('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const filteredServices = services.filter(service =>
@@ -167,105 +212,142 @@ export default function ServicesAdmin() {
 
       {showForm && (
         <div className={styles.formModal} onClick={handleCancel}>
-          {/*<div onClick={(e) => e.stopPropagation()}>*/}
-            <form onSubmit={handleSubmit} className={styles.form} onClick={(e) => e.stopPropagation()}>
-              <h2>{editingService ? 'Edit Service' : 'Add New Service'}</h2>
+          <form onSubmit={handleSubmit} className={styles.form} onClick={(e) => e.stopPropagation()}>
+            <h2>{editingService ? 'Edit Service' : 'Add New Service'}</h2>
 
-              {error && (
-                <div className={styles.errorMessage}>
-                  {error}
+            {error && (
+              <div className={styles.errorMessage}>
+                {error}
+              </div>
+            )}
+
+            <div className={styles.formGroup}>
+              <label>Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                required
+                placeholder="Enter service title"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Description *</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                required
+                rows={3}
+                placeholder="Enter service description"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Icon</label>
+              <select
+                value={formData.icon}
+                onChange={(e) => setFormData({...formData, icon: e.target.value})}
+              >
+                <option value="home">Home</option>
+                <option value="building">Building</option>
+                <option value="hammer">Hammer</option>
+                <option value="wrench">Wrench</option>
+                <option value="check">Check Circle</option>
+                <option value="target">Target</option>
+                <option value="briefcase">Briefcase</option>
+                <option value="tool">Tool</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Service Image</label>
+
+              {!formData.imageUrl ? (
+                <div
+                  className={styles.uploadArea}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={48} />
+                  <p>Click to upload service image</p>
+                  <span>PNG, JPG, JPEG up to 5MB</span>
+                  {uploadingImage && (
+                    <div className={styles.uploadProgress}>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mt-4"></div>
+                      <p className={styles.uploadingText}>Uploading...</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.imagePreview}>
+                  <img
+                    src={formData.imageUrl}
+                    alt="Service preview"
+                    className={styles.previewImage}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className={styles.removeButton}
+                    disabled={uploadingImage}
+                  >
+                    <X size={20} />
+                    Remove Image
+                  </button>
                 </div>
               )}
 
-              <div className={styles.formGroup}>
-                <label>Title *</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  required
-                  placeholder="Enter service title"
-                />
-              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className={styles.fileInput}
+                disabled={uploadingImage}
+              />
+            </div>
 
-              <div className={styles.formGroup}>
-                <label>Description *</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  required
-                  rows={3}
-                  placeholder="Enter service description"
-                />
-              </div>
+            <div className={styles.formGroup}>
+              <label>Order</label>
+              <input
+                type="number"
+                value={formData.order}
+                onChange={(e) => setFormData({...formData, order: parseInt(e.target.value) || 0})}
+                placeholder="Display order"
+                min="0"
+              />
+            </div>
 
-              <div className={styles.formGroup}>
-                <label>Icon</label>
-                <select
-                  value={formData.icon}
-                  onChange={(e) => setFormData({...formData, icon: e.target.value})}
-                >
-                  <option value="home">Home</option>
-                  <option value="building">Building</option>
-                  <option value="hammer">Hammer</option>
-                  <option value="wrench">Wrench</option>
-                  <option value="check">Check Circle</option>
-                  <option value="target">Target</option>
-                  <option value="briefcase">Briefcase</option>
-                  <option value="tool">Tool</option>
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Image URL</label>
-                <input
-                  type="text"
-                  value={formData.image}
-                  onChange={(e) => setFormData({...formData, image: e.target.value})}
-                  placeholder="Enter image URL (optional)"
+            <div className={styles.formGroup}>
+              <label className={styles.checkboxLabel}>
+                <Checkbox
+                  color={"orange"}
+                  size="3"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({...formData, isActive: checked === true})}
                 />
-              </div>
+                <span className={styles.checkboxText}>Active</span>
+              </label>
+            </div>
 
-              <div className={styles.formGroup}>
-                <label>Order</label>
-                <input
-                  type="number"
-                  value={formData.order}
-                  onChange={(e) => setFormData({...formData, order: parseInt(e.target.value) || 0})}
-                  placeholder="Display order"
-                  min="0"
-                />
-              </div>
-                <div className={styles.formGroup}>
-                    <label className={styles.checkboxLabel}>
-                        <Checkbox
-                            color={"orange"}
-                            size="3"
-                            checked={formData.isActive}
-                            onCheckedChange={(checked) => setFormData({...formData, isActive: checked === true})}
-                        />
-                        <span className={styles.checkboxText}>Active</span>
-                    </label>
-                </div>
-              <div className={styles.formActions}>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className={styles.cancelBtn}
-                  disabled={submitLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={styles.submitBtn}
-                  disabled={submitLoading}
-                >
-                  {submitLoading ? 'Saving...' : (editingService ? 'Update' : 'Add')} Service
-                </button>
-              </div>
-            </form>
-          {/*</div>*/}
+            <div className={styles.formActions}>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className={styles.cancelBtn}
+                disabled={submitLoading || uploadingImage}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={submitLoading || uploadingImage}
+              >
+                {submitLoading ? 'Saving...' : (editingService ? 'Update' : 'Add')} Service
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
@@ -274,32 +356,37 @@ export default function ServicesAdmin() {
           <p>No services found. {searchTerm ? 'Try a different search.' : 'Create your first service!'}</p>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <div className={styles.flex}>
           {filteredServices.map((service) => (
             <div key={service._id} className={styles.serviceCard}>
-              <div className={styles.serviceHeader}>
-                <h3>{service.title}</h3>
-                <span className={`${styles.badge} ${service.isActive ? styles.active : styles.inactive}`}>
-                  {service.isActive ? 'Active' : 'Inactive'}
-                </span>
+              <div className={styles.serviceCardImage}>
+                {service.imageUrl && (
+                  <div className={styles.serviceImage}>
+                    <img src={service.imageUrl} alt={service.title} />
+                  </div>
+                )}
               </div>
-              <p>{service.description}</p>
-              {service.image && (
-                <div className={styles.serviceImage}>
-                  <img src={service.image} alt={service.title} />
+              <div className={styles.serviceCardContent}>
+                <div className={styles.serviceHeader}>
+                  <h3>{service.title}</h3>
+                  <span className={`${styles.badge} ${service.isActive ? styles.active : styles.inactive}`}>
+                    {service.isActive ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
-              )}
-              <div className={styles.serviceFooter}>
-                <span className={styles.iconBadge}>Icon: {service.icon}</span>
-                <span className={styles.orderBadge}>Order: {service.order || 0}</span>
-              </div>
-              <div className={styles.actions}>
-                <button onClick={() => handleEdit(service)} className={styles.editBtn}>
-                  <Edit2 size={16} />
-                </button>
-                <button onClick={() => handleDelete(service._id!)} className={styles.deleteBtn}>
-                  <Trash2 size={16} />
-                </button>
+                <p>{service.description}</p>
+
+                <div className={styles.serviceFooter}>
+                  <span className={styles.iconBadge}>Icon: {service.icon}</span>
+                  <span className={styles.orderBadge}>Order: {service.order || 0}</span>
+                </div>
+                <div className={styles.actions}>
+                  <button onClick={() => handleEdit(service)} className={styles.editBtn}>
+                    <Edit2 size={16} />
+                  </button>
+                  <button onClick={() => handleDelete(service._id!)} className={styles.deleteBtn}>
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

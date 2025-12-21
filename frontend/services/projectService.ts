@@ -12,6 +12,7 @@ export interface Project {
     startDate?: string;
     endDate?: string;
     isActive?: boolean;
+    imageUrl?: string;
 }
 
 export const projectService = {

@@ -73,16 +73,38 @@
   gap: 24px;
 }
 
+.flex {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
 .serviceCard {
   background: white;
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
 }
 
 .serviceCard:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.serviceCardImage {
+  height: 100%;
+  width: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  /*margin-bottom: 16px;*/
+}
+
+.serviceCardContent {
+    width: 100%;
 }
 
 .serviceHeader {
@@ -122,7 +144,7 @@
 }
 
 .serviceImage {
-  margin-bottom: 16px;
+  /*margin-bottom: 16px;*/
   border-radius: 8px;
   overflow: hidden;
 }
@@ -196,8 +218,8 @@
   background: white;
   padding: 32px;
   border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
+  width: 60%;
+  max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -243,6 +265,7 @@
 .formGroup textarea:focus {
   outline: none;
   border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
 }
 
 .formGroup textarea {
@@ -250,18 +273,122 @@
   font-family: inherit;
 }
 
+.uploadArea {
+  border: 2px dashed #e2e8f0;
+  border-radius: 8px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #fafafa;
+}
+
+.uploadArea:hover {
+  border-color: #d97706;
+  background-color: #fff7ed;
+}
+
+.uploadArea svg {
+  color: #d97706;
+  margin: 0 auto 12px;
+}
+
+.uploadArea p {
+  color: #374151;
+  margin-bottom: 4px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.uploadArea span {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.uploadProgress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.uploadingText {
+  margin-top: 8px;
+  color: #d97706;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.imagePreview {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.removeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.removeButton:hover:not(:disabled) {
+  background-color: #fecaca;
+  border-color: #fca5a5;
+}
+
+.removeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fileInput {
+  display: none;
+}
+
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   cursor: pointer;
+  user-select: none;
 }
 
-.checkboxLabel input {
-  width: auto;
-  margin: 0;
-  cursor: pointer;
+.checkboxText {
+  margin-left: 8px;
+  font-weight: 500;
+  color: #334155;
 }
+
+/* Remove default checkbox styles if needed */
+.checkboxLabel input[type="checkbox"] {
+    display: none;
+}
+
+/* Optional: Add hover effect for the label */
+.checkboxLabel:hover .checkboxText {
+    color: #0f172a;
+}
+
 
 .formActions {
   display: flex;
@@ -314,32 +441,6 @@
 .emptyState p {
   font-size: 1rem;
 }
-/* ... existing styles ... */
-
-.checkboxLabel {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.checkboxText {
-    margin-left: 8px;
-    font-weight: 500;
-    color: #334155;
-}
-
-/* Remove default checkbox styles if needed */
-.checkboxLabel input[type="checkbox"] {
-    display: none;
-}
-
-/* Optional: Add hover effect for the label */
-.checkboxLabel:hover .checkboxText {
-    color: #0f172a;
-}
-
 
 @media (max-width: 768px) {
   .grid {
@@ -355,5 +456,22 @@
   .addButton {
     width: 100%;
     justify-content: center;
+  }
+
+  .form {
+    width: 95%;
+    padding: 24px;
+  }
+
+  .previewImage {
+    max-height: 250px;
+  }
+
+  .serviceCard {
+    flex-direction: column;
+  }
+
+  .serviceCardImage {
+    width: 100%;
   }
 }

@@ -61,6 +61,7 @@ html {
         z-index: 100;
         width: 80%;
         padding: 32px;
+        overflow: auto;
     }
     aside {
         width: 20%;

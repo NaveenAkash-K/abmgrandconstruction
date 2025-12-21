@@ -7,6 +7,8 @@ export interface Service {
     description: string;
     icon: string;
     image?: string;
+    images?: string[];
+    imageUrl: string;
     order?: number;
     isActive?: boolean;
 }

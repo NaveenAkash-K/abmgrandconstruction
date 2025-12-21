@@ -118,9 +118,9 @@ export default function ProjectsAdmin() {
               {filteredProjects.map((project) => (
                 <tr key={project._id}>
                   <td>
-                    {project.image ? (
+                    {project.imageUrl ? (
                       <img
-                        src={project.image}
+                        src={project.imageUrl}
                         alt={project.title}
                         className={styles.projectImage}
                       />
