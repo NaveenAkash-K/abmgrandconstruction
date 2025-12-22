@@ -67,6 +67,25 @@ html {
         width: 20%;
     }
 }
+/* Global scrollbar styles */
+::-webkit-scrollbar {
+    width: 6px;        /* vertical scrollbar */
+    height: 6px;       /* horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+}
+* {
+    scrollbar-width: thin;          /* auto | thin | none */
+    scrollbar-color: rgba(0,0,0,0.4) transparent;
+}
+
 
 @media (max-width: 768px) {
     .section-title {

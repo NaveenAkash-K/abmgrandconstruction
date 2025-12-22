@@ -180,27 +180,7 @@ export default function ProjectForm() {
             </select>
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="startDate">Start Date</label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-            />
-          </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="endDate">End Date</label>
-            <input
-              type="date"
-              id="endDate"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-            />
-          </div>
 
           <div className={`${styles.formGroup} ${styles.fullWidth}`}>
             <label htmlFor="location">Location *</label>

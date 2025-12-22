@@ -4,24 +4,28 @@ import { useEffect, useState } from 'react';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import styles from './ContactSection.module.css';
 import { contactService, quoteService, ContactInfo, QuoteRequest } from '@/services';
+import { serviceService, Service } from '@/services/serviceService';
 
 interface FormData {
     name: string;
     email: string;
     phone: string;
-    subject: string;
+    siteLocation: string;
+    service: string;
     message: string;
 }
 
 export default function ContactSection() {
     const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+    const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         name: '',
         email: '',
         phone: '',
-        subject: '',
+        siteLocation: '',
+        service: '',
         message: ''
     });
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -29,6 +33,7 @@ export default function ContactSection() {
 
     useEffect(() => {
         fetchContactInfo();
+        fetchServices();
     }, []);
 
     const fetchContactInfo = async () => {
@@ -43,6 +48,17 @@ export default function ContactSection() {
         }
     };
 
+    const fetchServices = async () => {
+        try {
+            const response = await serviceService.getAll();
+            // Filter only active services if needed
+            const activeServices = response.data?.filter((s: Service) => s.isActive !== false) || response.data || [];
+            setServices(activeServices);
+        } catch (error) {
+            console.error('Failed to fetch services:', error);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
@@ -50,18 +66,24 @@ export default function ContactSection() {
         setSubmitSuccess(false);
 
         try {
+            // Find selected service title
+            const selectedService = services.find(s => s._id === formData.service);
+            const serviceName = selectedService?.title || formData.service;
+
             // Send quote request
             const quoteData: QuoteRequest = {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
-                message: `Subject: ${formData.subject}\n\n${formData.message}`
+                siteLocation: formData.siteLocation,
+                service: formData.service,
+                message: formData.message,
             };
 
             await quoteService.sendQuote(quoteData);
 
             setSubmitSuccess(true);
-            setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', phone: '', siteLocation: '', service: '', message: '' });
 
             // Clear success message after 5 seconds
             setTimeout(() => setSubmitSuccess(false), 5000);
@@ -153,31 +175,37 @@ export default function ContactSection() {
                                 />
                             </div>
                             <div className={styles.formGroup}>
-                                <label htmlFor="subject">Subject *</label>
+                                <label htmlFor="siteLocation">Site Location *</label>
                                 <input
                                     type="text"
-                                    id="subject"
-                                    name="subject"
-                                    value={formData.subject}
+                                    id="siteLocation"
+                                    name="siteLocation"
+                                    value={formData.siteLocation}
                                     onChange={handleChange}
                                     required
-                                    placeholder="What is your inquiry about?"
+                                    placeholder="Enter your site location"
                                 />
                             </div>
                             <div className={styles.formGroup}>
-                                <label htmlFor="message">Message *</label>
-                                <textarea
-                                    id="message"
-                                    name="message"
-                                    value={formData.message}
+                                <label htmlFor="service">Service *</label>
+                                <select
+                                    id="service"
+                                    name="service"
+                                    value={formData.service}
                                     onChange={handleChange}
                                     required
-                                    rows={4}
-                                    placeholder="Tell us about your project..."
-                                />
+                                    className={styles.selectInput}
+                                >
+                                    <option value="">Select a service</option>
+                                    {services.map((service) => (
+                                        <option key={service._id} value={service._id}>
+                                            {service.title}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <button type="submit" className={styles.submitButton} disabled={submitting}>
-                                {submitting ? 'Sending...' : 'Send Message'}
+                                {submitting ? 'Sending...' : 'Send Quote'}
                             </button>
                         </form>
                     </div>

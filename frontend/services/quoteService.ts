@@ -6,6 +6,8 @@ export interface QuoteRequest {
     email: string;
     phone: string;
     message: string;
+    siteLocation: string;
+    service: string;
 }
 
 export interface QuoteResponse {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import styles from './page.module.css';
 import { whyChooseUsService, WhyChooseUs } from '@/services';
+import { Checkbox } from "@radix-ui/themes";
 
 export default function WhyChooseUsAdmin() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -74,7 +75,7 @@ export default function WhyChooseUsAdmin() {
             description: reason.description,
             icon: reason.icon,
             order: reason.order || 0,
-            isActive: reason.isActive ?? true
+            isActive: reason.isActive
         });
         setShowForm(true);
         setError('');
@@ -114,6 +115,7 @@ export default function WhyChooseUsAdmin() {
     const sortedReasons = [...filteredReasons].sort((a, b) =>
         (a.order || 0) - (b.order || 0)
     );
+
 
     if (loading) {
         return (
@@ -238,12 +240,13 @@ export default function WhyChooseUsAdmin() {
 
                             <div className={styles.formGroup}>
                                 <label className={styles.checkboxLabel}>
-                                    <input
-                                        type="checkbox"
+                                    <Checkbox
+                                        color="orange"
+                                        size="3"
                                         checked={formData.isActive}
-                                        onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                                        onCheckedChange={(checked) => setFormData({...formData, isActive: checked === true})}
                                     />
-                                    Active
+                                    <span className={styles.checkboxText}>Active</span>
                                 </label>
                             </div>
 
@@ -284,7 +287,7 @@ export default function WhyChooseUsAdmin() {
                             <div className={styles.cardHeader}>
                                 <div className={styles.iconWrapper}>
                                     <span className={styles.iconBadge}>{reason.icon}</span>
-                                    <span className={styles.orderBadge}>#{reason.order || 0}</span>
+                                    {/*<span className={styles.orderBadge}>#{reason.order || 0}</span>*/}
                                 </div>
                                 <div className={styles.actions}>
                                     <button
@@ -305,11 +308,14 @@ export default function WhyChooseUsAdmin() {
                             </div>
                             <h3>{reason.title}</h3>
                             <p>{reason.description}</p>
-                            {!reason.isActive && (
+                            {(Object.keys(reason)).includes('isActive') && (!reason.isActive ?
                                 <div className={styles.inactiveBadge}>
                                     Inactive
-                                </div>
-                            )}
+                                </div> :
+                                <div className={styles.activeBadge}>
+                                    Active
+                                </div>)
+                            }
                         </div>
                     ))}
                 </div>

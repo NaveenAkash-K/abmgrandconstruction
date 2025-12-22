@@ -163,7 +163,7 @@ export default function AboutAdmin() {
                           max={new Date().getFullYear()}
                           placeholder="e.g., 1999"
                       />
-                      {formData.yearsOfExperience && (
+                      {formData.yearsOfExperience !== undefined && formData.yearsOfExperience >= 0 && (
                           <small className={styles.helpText}>
                               {formData.yearsOfExperience} years of experience
                           </small>

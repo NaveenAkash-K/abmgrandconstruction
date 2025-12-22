@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Home, Building2, Hammer, Wrench, CheckCircle2, Target, Award, Clock, Shield, Users } from 'lucide-react';
 import styles from './ServicesSection.module.css';
 import { serviceService, Service } from '@/services';
+import Image from "next/image";
 
 // Icon mapping
 const iconMap: { [key: string]: any } = {
@@ -73,14 +74,17 @@ export default function ServicesSection() {
                 </div>
                 <div className={styles.servicesGrid}>
                     {services.map((service) => {
-                        const Icon = iconMap[service.icon] || Home;
+                        // const Icon = iconMap[service.icon] || Home;
                         return (
                             <div key={service._id} className={styles.serviceCard}>
-                                <div className={styles.serviceIconWrapper}>
-                                    <Icon className={styles.serviceIcon} />
+                                <div className={styles.leftContainer}>
+                                    <img src={service.imageUrl} alt={service.title} className={styles.serviceImage} />
                                 </div>
-                                <h3>{service.title}</h3>
-                                <p>{service.description}</p>
+                                <div className={styles.rightContainer}>
+                                    <h3>{service.title}</h3>
+                                    <p>{service.description}</p>
+                                </div>
+
                             </div>
                         );
                     })}

@@ -164,6 +164,17 @@
   font-weight: 500;
 }
 
+.activeBadge {
+    margin-top: 12px;
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: #dcfce7;
+    color: #15803d;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -356,17 +367,23 @@
   }
 }
 
+/* Radix UI Checkbox Styles */
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   cursor: pointer;
+  user-select: none;
 }
 
-.checkboxLabel input {
-  width: auto;
-  margin: 0;
-  cursor: pointer;
+.checkboxText {
+  font-weight: 500;
+  color: #334155;
+    margin-left: 8px;
+}
+
+.checkboxLabel:hover .checkboxText {
+  color: #0f172a;
 }
 
 .formActions {
