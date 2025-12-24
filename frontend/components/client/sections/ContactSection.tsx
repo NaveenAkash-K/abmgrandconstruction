@@ -258,7 +258,7 @@ export default function ContactSection() {
                                     <h4>Business Hours</h4>
                                     <p>{contactInfo?.businessHoursWeekdays || 'Monday - Friday: 8:00 AM - 6:00 PM'}</p>
                                     <p>{contactInfo?.businessHoursSaturday || 'Saturday: 9:00 AM - 2:00 PM'}</p>
-                                    <p>{contactInfo?.businessHoursSunday || 'Sunday: Closed'}</p>
+                                    <p>{contactInfo?.businessHoursSunday?.toLowerCase() === 'closed' ? 'Sunday: Closed' : contactInfo?.businessHoursSunday}</p>
                                 </div>
                             </div>
                         </div>

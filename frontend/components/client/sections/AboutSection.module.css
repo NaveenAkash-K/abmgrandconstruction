@@ -52,7 +52,7 @@
 
 .sectionDescription {
     color: #64748b;
-    max-width: 768px;
+    /*max-width: 768px;*/
     margin: 0 auto;
     font-size: 1.125rem;
     line-height: 1.75;

@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { Building2, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import styles from './Footer.module.css';
-import { contactService, ContactInfo } from '@/services';
+import {contactService, ContactInfo, Service, serviceService} from '@/services';
 import logo from "@/assets/logo.png";
 import Image from "next/image";
 
 export default function Footer() {
     const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const fetchContactInfo = async () => {
         try {
@@ -18,8 +20,24 @@ export default function Footer() {
             console.error('Failed to fetch contact info:', error);
         }
     };
+    const fetchServices = async () => {
+        try {
+            setLoading(true);
+            const response = await serviceService.getAll();
+            // Filter only active services and sort by order
+            const activeServices = (response.data || [])
+                .filter((service: Service) => service.isActive)
+                .sort((a: Service, b: Service) => (a.order || 0) - (b.order || 0));
+            setServices(activeServices);
+        } catch (error) {
+            console.error('Failed to fetch services:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         fetchContactInfo();
+        fetchServices();
     }, []);
 
     return (
@@ -62,11 +80,15 @@ export default function Footer() {
                     <div className={styles.footerServices}>
                         <h4>Services</h4>
                         <ul>
-                            <li><a href="#services">Residential</a></li>
-                            <li><a href="#services">Commercial</a></li>
-                            <li><a href="#services">Renovation</a></li>
-                            <li><a href="#services">Structural Repairs</a></li>
-                            <li><a href="#services">Turnkey Projects</a></li>
+                            {
+                                services.map((service: Service) => {
+                                    return (
+                                        <li key={service._id}><a href="#services">{service.title}</a></li>
+                                    )
+                                })
+
+
+                            }
                         </ul>
                     </div>
                     <div className={styles.footerContact}>

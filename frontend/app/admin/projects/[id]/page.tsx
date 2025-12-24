@@ -90,7 +90,7 @@ export default function ProjectForm() {
   };
 
   const handleRemoveImage = () => {
-    setFormData(prev => ({ ...prev, image: '' }));
+    setFormData(prev => ({ ...prev, imageUrl: '' }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -195,17 +195,17 @@ export default function ProjectForm() {
             />
           </div>
 
-          <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Enter project description"
-            />
-          </div>
+          {/*<div className={`${styles.formGroup} ${styles.fullWidth}`}>*/}
+          {/*  <label htmlFor="description">Description</label>*/}
+          {/*  <textarea*/}
+          {/*    id="description"*/}
+          {/*    name="description"*/}
+          {/*    value={formData.description}*/}
+          {/*    onChange={handleChange}*/}
+          {/*    rows={4}*/}
+          {/*    placeholder="Enter project description"*/}
+          {/*  />*/}
+          {/*</div>*/}
 
           <div className={`${styles.formGroup} ${styles.fullWidth}`}>
             <label>Project Image</label>
