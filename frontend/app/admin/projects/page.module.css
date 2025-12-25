@@ -67,7 +67,7 @@
 .tableContainer {
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -181,4 +181,22 @@
 
 .deleteButton:hover {
   background-color: #fecaca;
+}
+
+@media (max-width: 767px) {
+    .container {
+        padding: 0px;
+    }
+    .addButtonText {
+        width: 100%;
+    }
+    .projectInnerContainer {
+        width: 50%;
+    }
+    .addButton {
+        width: 45%;
+    }
+    .header {
+        flex-wrap: wrap;
+    }
 }

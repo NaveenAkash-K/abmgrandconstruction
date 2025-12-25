@@ -96,3 +96,16 @@ html {
         font-size: 1rem;
     }
 }
+
+@media (max-width: 767px) {
+    .admin-page-root {
+        .container {
+            padding-top: 80px;
+            width: 100%;
+        }
+    }
+    aside {
+        width: 90%;
+        z-index: 120;
+    }
+}

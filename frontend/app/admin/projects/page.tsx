@@ -5,12 +5,14 @@ import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { projectService, Project } from '@/services';
+import {useIsMobile} from "@/hooks/useIsMobile";
 
 export default function ProjectsAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchProjects();
@@ -76,14 +78,25 @@ export default function ProjectsAdmin() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div>
+        <div className={styles.projectInnerContainer}>
           <h1>Projects</h1>
-          <p>Manage your portfolio projects</p>
+            {
+                isMobile ?
+                    <></> :
+                    <p>Manage your portfolio projects</p>
+            }
         </div>
         <Link href="/admin/projects/new" className={styles.addButton}>
           <Plus size={20} />
-          Add Project
+          <div className={styles.addButtonText}>
+              Add Project
+          </div>
         </Link>
+          {
+              isMobile ?
+                  <p>Manage your portfolio projects</p> :
+                  <></>
+          }
       </div>
 
       <div className={styles.searchBar}>

@@ -56,6 +56,7 @@
     margin: 0 auto;
     font-size: 1.125rem;
     line-height: 1.75;
+    text-align: justify;
 }
 
 @media (max-width: 768px) {

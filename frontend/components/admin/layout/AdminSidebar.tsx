@@ -53,7 +53,7 @@ export default function AdminSidebar() {
   return (
     <>
       <button
-        className={styles.mobileToggle}
+        className={`${styles.mobileToggle} ${isMobileOpen ? styles.toggleButton : ''}`}
         onClick={() => setIsMobileOpen(!isMobileOpen)}
       >
         {isMobileOpen ? <X /> : <Menu />}

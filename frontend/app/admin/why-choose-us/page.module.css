@@ -85,6 +85,9 @@
   .grid {
     grid-template-columns: 1fr;
   }
+    .container {
+        padding: 0px;
+    }
 }
 
 .reasonCard {
